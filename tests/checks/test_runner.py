@@ -26,6 +26,7 @@ def test_run_checks_valid_minimal_project(
         "PY002",
         "PY003",
         "PY004",
+        "PY031",
         "PY020",
         "PY030",
     }
@@ -120,6 +121,7 @@ def test_run_checks_uses_deterministic_order(
         "PY002",
         "PY003",
         "PY004",
+        "PY031",
         "PY020",
         "PY030",
     ]

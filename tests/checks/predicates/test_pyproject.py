@@ -7,6 +7,7 @@ from mxm.foundry.checks.predicates.pyproject import (
     check_poetry_package_uses_src_mxm_layout,
     check_pyproject_parseable,
     check_tool_poetry_exists,
+    check_tool_pyright_absent,
 )
 
 
@@ -195,3 +196,57 @@ packages = [{ include = "mxm/example", from = "." }]
 
     assert result.status == "fail"
     assert result.code == "PY004"
+
+
+def test_check_tool_pyright_absent_passes_when_missing(
+    tmp_path: Path,
+) -> None:
+    write_pyproject(
+        tmp_path,
+        """
+[tool.poetry]
+name = "mxm-example"
+""",
+    )
+
+    result = check_tool_pyright_absent(tmp_path, "PY031")
+
+    assert result.status == "pass"
+    assert result.code == "PY031"
+    assert result.path == tmp_path / "pyproject.toml"
+
+
+def test_check_tool_pyright_absent_fails_when_present(
+    tmp_path: Path,
+) -> None:
+    write_pyproject(
+        tmp_path,
+        """
+[tool.poetry]
+name = "mxm-example"
+
+[tool.pyright]
+typeCheckingMode = "strict"
+""",
+    )
+
+    result = check_tool_pyright_absent(tmp_path, "PY031")
+
+    assert result.status == "fail"
+    assert result.code == "PY031"
+    assert result.path == tmp_path / "pyproject.toml"
+    assert result.message == (
+        "[tool.pyright] must not be defined; use pyrightconfig.json instead."
+    )
+
+
+def test_check_tool_pyright_absent_fails_when_toml_invalid(
+    tmp_path: Path,
+) -> None:
+    write_pyproject(tmp_path, "[tool.pyright\n")
+
+    result = check_tool_pyright_absent(tmp_path, "PY031")
+
+    assert result.status == "fail"
+    assert result.code == "PY031"
+    assert result.path == tmp_path / "pyproject.toml"

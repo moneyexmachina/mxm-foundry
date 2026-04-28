@@ -205,6 +205,39 @@ def check_poetry_package_uses_src_mxm_layout(
     )
 
 
+def check_tool_pyright_absent(project_root: Path, code: str) -> CheckResult:
+    path = project_root / "pyproject.toml"
+
+    document, error = _load_pyproject(project_root)
+    if document is None:
+        return CheckResult(
+            code=code,
+            name="[tool.pyright] is absent",
+            status="fail",
+            message=error or "Cannot inspect [tool.pyright].",
+            path=path,
+        )
+
+    pyright = nested_mapping(document, ("tool", "pyright"))
+
+    if pyright is None:
+        return CheckResult(
+            code=code,
+            name="[tool.pyright] is absent",
+            status="pass",
+            message="No [tool.pyright] section found.",
+            path=path,
+        )
+
+    return CheckResult(
+        code=code,
+        name="[tool.pyright] is absent",
+        status="fail",
+        message="[tool.pyright] must not be defined; use pyrightconfig.json instead.",
+        path=path,
+    )
+
+
 PYPROJECT_CHECKS: tuple[Check, ...] = (
     Check(
         code="PY001",
@@ -225,5 +258,10 @@ PYPROJECT_CHECKS: tuple[Check, ...] = (
         code="PY004",
         name="Poetry package uses src/mxm layout",
         run=lambda root: check_poetry_package_uses_src_mxm_layout(root, "PY004"),
+    ),
+    Check(
+        code="PY031",
+        name="[tool.pyright] is absent",
+        run=lambda root: check_tool_pyright_absent(root, "PY031"),
     ),
 )
