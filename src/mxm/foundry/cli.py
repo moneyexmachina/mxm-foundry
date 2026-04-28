@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Annotated
 
 import typer
 from rich.console import Console
 from rich.table import Table
-from typing_extensions import Annotated
 
 from mxm.foundry.checks.runner import run_checks
 

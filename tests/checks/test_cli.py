@@ -9,18 +9,18 @@ from mxm.foundry.cli import app
 runner = CliRunner()
 
 
-def test_check_cli_valid_project(minimal_project: Path) -> None:
-    result = runner.invoke(app, ["check", str(minimal_project)])
+def test_check_cli_valid_project(minimal_valid_project: Path) -> None:
+    result = runner.invoke(app, ["check", str(minimal_valid_project)])
 
     assert result.exit_code == 0
-    assert "PASS=5" in result.stdout
+    assert "PASS=9" in result.stdout
     assert "FAIL=0" in result.stdout
 
 
-def test_check_cli_invalid_project(minimal_project: Path) -> None:
-    (minimal_project / "README.md").unlink()
+def test_check_cli_invalid_project(minimal_valid_project: Path) -> None:
+    (minimal_valid_project / "README.md").unlink()
 
-    result = runner.invoke(app, ["check", str(minimal_project)])
+    result = runner.invoke(app, ["check", str(minimal_valid_project)])
 
     assert result.exit_code == 1
     assert "FS001" in result.stdout

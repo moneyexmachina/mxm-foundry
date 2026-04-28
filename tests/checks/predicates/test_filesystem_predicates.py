@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from mxm.foundry.checks.predicates import check_required_file
+from mxm.foundry.checks.predicates.filesystem import check_required_file
 
 
 def test_check_required_file_pass(tmp_path: Path) -> None:
