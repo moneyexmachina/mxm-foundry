@@ -1,0 +1,17 @@
+org: moneyexmachina
+author: "Dr Pendryck Coinwright, <contact@moneyexmachina.com>"
+license: MIT
+python: ">=3.13"
+visibility: public
+init_tag: "v0.0.1"
+
+git:
+  initial_branch: "main"
+  sign_commits: false
+
+repo:
+  topics: ["moneyexmachina", "mxm", "python", "tooling", "scaffold"]
+  homepage: "https://moneyexmachina.com"
+
+templates:
+  root: "templates"
