@@ -1,37 +1,58 @@
-# tests/conftest.py
-
 from __future__ import annotations
 
+import shutil
 from pathlib import Path
 
 import pytest
 
+from mxm.foundry.checks.predicates import pyproject_config, pyright_config
+
 
 @pytest.fixture
 def minimal_valid_project(tmp_path: Path) -> Path:
-    (tmp_path / "README.md").write_text("# Example\n")
-    (tmp_path / "LICENSE").write_text("MIT\n")
-    (tmp_path / "pyproject.toml").write_text("[tool.poetry]\nname = 'mxm-example'\n")
-    (tmp_path / "pyrightconfig.json").write_text("{}\n")
-    (tmp_path / "Makefile").write_text("check:\n\t@echo check\n")
+    """Create a minimal MXM project satisfying current canonical checks."""
 
-    (tmp_path / "tests").mkdir()
-    (tmp_path / "pyproject.toml").write_text(
-        """
-[tool.poetry]
-name = "mxm-example"
-packages = [{ include = "mxm/example", from = "src" }]
+    project_root = tmp_path / "minimal-project"
 
+    package_root = project_root / "src" / "mxm" / "example"
+    tests_root = project_root / "tests"
 
-[tool.black]
-line-length = 88
-target-version = ["py313"]
-"""
+    package_root.mkdir(parents=True)
+    tests_root.mkdir(parents=True)
+
+    shutil.copyfile(
+        pyproject_config.POLICY_PYPROJECT_PATH,
+        project_root / "pyproject.toml",
+    )
+    shutil.copyfile(
+        pyright_config.POLICY_PYRIGHTCONFIG_PATH,
+        project_root / "pyrightconfig.json",
     )
 
-    package_root = tmp_path / "src" / "mxm" / "example"
-    package_root.mkdir(parents=True)
-    (package_root / "__init__.py").write_text("")
-    (package_root / "py.typed").write_text("")
+    (project_root / "README.md").write_text(
+        "# mxm-example\n",
+        encoding="utf-8",
+    )
 
-    return tmp_path
+    (package_root / "__init__.py").write_text(
+        "",
+        encoding="utf-8",
+    )
+    (package_root / "py.typed").write_text(
+        "",
+        encoding="utf-8",
+    )
+    (project_root / "LICENSE").write_text(
+        "MIT License\n",
+        encoding="utf-8",
+    )
+
+    (project_root / "Makefile").write_text(
+        ".PHONY: test check\n\n"
+        "test:\n"
+        "\tpoetry run pytest\n\n"
+        "check:\n"
+        "\tpoetry run ruff check .\n",
+        encoding="utf-8",
+    )
+    return project_root

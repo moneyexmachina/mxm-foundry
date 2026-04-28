@@ -1,4 +1,7 @@
+[tool.poetry]
+name = "mxm-example"
+packages = [{ include = "mxm/example", from = "src" }]
+
 [tool.black]
 line-length = 88
 target-version = ["py313"]
-

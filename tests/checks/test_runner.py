@@ -11,6 +11,7 @@ def test_run_checks_valid_minimal_project(
     results = run_checks(minimal_valid_project)
 
     assert results
+
     assert {result.code for result in results} == {
         "FS001",
         "FS002",
@@ -26,6 +27,7 @@ def test_run_checks_valid_minimal_project(
         "PY003",
         "PY004",
         "PY020",
+        "PY030",
     }
     assert all(result.status == "pass" for result in results)
 
@@ -119,4 +121,5 @@ def test_run_checks_uses_deterministic_order(
         "PY003",
         "PY004",
         "PY020",
+        "PY030",
     ]
