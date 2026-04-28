@@ -4,41 +4,20 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any, cast
 
-import tomlkit
-from tomlkit.exceptions import ParseError
-
 from mxm.foundry.checks.models import Check, CheckResult
-
-TomlMapping = Mapping[str, Any]
+from mxm.foundry.checks.toml_utils import (
+    TomlMapping,
+    load_toml,
+    nested_mapping,
+)
 
 
 def _load_pyproject(project_root: Path) -> tuple[TomlMapping | None, str | None]:
-    path = project_root / "pyproject.toml"
-
-    if not path.is_file():
-        return None, "pyproject.toml is missing."
-
-    try:
-        document = tomlkit.parse(path.read_text())
-    except ParseError as exc:
-        return None, f"pyproject.toml is not valid TOML: {exc}"
-
-    return cast(TomlMapping, document), None
-
-
-def _mapping_value(mapping: TomlMapping, key: str) -> TomlMapping | None:
-    value = mapping.get(key)
-    if isinstance(value, Mapping):
-        return cast(TomlMapping, value)
-    return None
+    return load_toml(project_root / "pyproject.toml")
 
 
 def _tool_poetry(document: TomlMapping) -> TomlMapping | None:
-    tool = _mapping_value(document, "tool")
-    if tool is None:
-        return None
-
-    return _mapping_value(tool, "poetry")
+    return nested_mapping(document, ("tool", "poetry"))
 
 
 def check_pyproject_parseable(project_root: Path, code: str) -> CheckResult:

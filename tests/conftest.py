@@ -21,8 +21,14 @@ def minimal_valid_project(tmp_path: Path) -> Path:
 [tool.poetry]
 name = "mxm-example"
 packages = [{ include = "mxm/example", from = "src" }]
+
+
+[tool.black]
+line-length = 88
+target-version = ["py313"]
 """
     )
+
     package_root = tmp_path / "src" / "mxm" / "example"
     package_root.mkdir(parents=True)
     (package_root / "__init__.py").write_text("")

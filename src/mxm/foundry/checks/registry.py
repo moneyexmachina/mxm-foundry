@@ -5,8 +5,10 @@ from mxm.foundry.checks.predicates.filesystem import (
     FILESYSTEM_CHECKS,
 )
 from mxm.foundry.checks.predicates.pyproject import PYPROJECT_CHECKS
+from mxm.foundry.checks.predicates.pyproject_config import PYPROJECT_CONFIG_CHECKS
 
 CHECKS: tuple[Check, ...] = (
     *FILESYSTEM_CHECKS,
     *PYPROJECT_CHECKS,
+    *PYPROJECT_CONFIG_CHECKS,
 )
