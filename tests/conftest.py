@@ -16,7 +16,13 @@ def minimal_valid_project(tmp_path: Path) -> Path:
     (tmp_path / "Makefile").write_text("check:\n\t@echo check\n")
 
     (tmp_path / "tests").mkdir()
-
+    (tmp_path / "pyproject.toml").write_text(
+        """
+[tool.poetry]
+name = "mxm-example"
+packages = [{ include = "mxm/example", from = "src" }]
+"""
+    )
     package_root = tmp_path / "src" / "mxm" / "example"
     package_root.mkdir(parents=True)
     (package_root / "__init__.py").write_text("")

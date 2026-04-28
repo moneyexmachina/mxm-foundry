@@ -21,6 +21,10 @@ def test_run_checks_valid_minimal_project(
         "FS007",
         "FS008",
         "FS009",
+        "PY001",
+        "PY002",
+        "PY003",
+        "PY004",
     }
     assert all(result.status == "pass" for result in results)
 
@@ -109,4 +113,8 @@ def test_run_checks_uses_deterministic_order(
         "FS007",
         "FS008",
         "FS009",
+        "PY001",
+        "PY002",
+        "PY003",
+        "PY004",
     ]

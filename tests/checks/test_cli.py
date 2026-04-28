@@ -13,7 +13,7 @@ def test_check_cli_valid_project(minimal_valid_project: Path) -> None:
     result = runner.invoke(app, ["check", str(minimal_valid_project)])
 
     assert result.exit_code == 0
-    assert "PASS=9" in result.stdout
+    assert "PASS=13" in result.stdout
     assert "FAIL=0" in result.stdout
 
 
