@@ -5,6 +5,7 @@ from pathlib import Path
 from typer.testing import CliRunner
 
 from mxm.foundry.cli import app
+from tests.checks.expected import EXPECTED_CHECK_COUNT
 
 runner = CliRunner()
 
@@ -13,7 +14,7 @@ def test_check_cli_valid_project(minimal_valid_project: Path) -> None:
     result = runner.invoke(app, ["check", str(minimal_valid_project)])
 
     assert result.exit_code == 0
-    assert "PASS=16" in result.stdout
+    assert f"PASS={EXPECTED_CHECK_COUNT}" in result.stdout
     assert "FAIL=0" in result.stdout
 
 
@@ -24,6 +25,7 @@ def test_check_cli_invalid_project(minimal_valid_project: Path) -> None:
 
     assert result.exit_code == 1
     assert "FS001" in result.stdout
+    assert f"PASS={EXPECTED_CHECK_COUNT - 1}" in result.stdout
     assert "FAIL=1" in result.stdout
 
 

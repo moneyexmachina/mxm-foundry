@@ -27,8 +27,8 @@ def check_license_matches_canonical(
 
 LICENSE_CHECKS: tuple[Check, ...] = (
     Check(
-        code="FS003",
+        code="LIC001",
         name="LICENSE matches canonical license",
-        run=lambda root: check_license_matches_canonical(root, "FS003"),
+        run=lambda root: check_license_matches_canonical(root, "LIC001"),
     ),
 )

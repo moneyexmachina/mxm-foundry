@@ -1,0 +1,20 @@
+EXPECTED_CHECK_CODES = [
+    "FS001",
+    "FS002",
+    "FS003",
+    "FS004",
+    "FS005",
+    "FS006",
+    "FS007",
+    "FS008",
+    "FS009",
+    "LIC001",
+    "PY001",
+    "PY002",
+    "PY003",
+    "PY004",
+    "PY031",
+    "PY020",
+    "PY030",
+]
+EXPECTED_CHECK_COUNT = len(EXPECTED_CHECK_CODES)

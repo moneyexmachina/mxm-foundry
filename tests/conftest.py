@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from mxm.foundry.checks.predicates import pyproject_config, pyright_config
+from mxm.foundry.checks.predicates.license import POLICY_LICENSE_PATH
 
 
 @pytest.fixture
@@ -28,6 +29,10 @@ def minimal_valid_project(tmp_path: Path) -> Path:
         pyright_config.POLICY_PYRIGHTCONFIG_PATH,
         project_root / "pyrightconfig.json",
     )
+    shutil.copyfile(
+        POLICY_LICENSE_PATH,
+        project_root / "LICENSE",
+    )
 
     (project_root / "README.md").write_text(
         "# mxm-example\n",
@@ -40,10 +45,6 @@ def minimal_valid_project(tmp_path: Path) -> Path:
     )
     (package_root / "py.typed").write_text(
         "",
-        encoding="utf-8",
-    )
-    (project_root / "LICENSE").write_text(
-        "MIT License\n",
         encoding="utf-8",
     )
 

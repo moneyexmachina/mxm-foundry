@@ -2,8 +2,26 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from mxm.foundry.checks.models import CheckResult
-from mxm.foundry.checks.registry import CHECKS
+from mxm.foundry.checks.models import (
+    CheckResult,
+    Policy,
+    PolicyResult,
+    aggregate_check_status,
+)
+from mxm.foundry.checks.registry import CHECKS, POLICIES
+
+
+def run_policy(policy: Policy, project_root: Path) -> PolicyResult:
+    """Run all checks in one flat policy against a project root."""
+
+    results = tuple(check.run(project_root) for check in policy.checks)
+
+    return PolicyResult(
+        code=policy.code,
+        name=policy.name,
+        status=aggregate_check_status(results),
+        checks=results,
+    )
 
 
 def run_checks(project_root: Path) -> list[CheckResult]:
@@ -12,3 +30,11 @@ def run_checks(project_root: Path) -> list[CheckResult]:
     root = project_root.resolve()
 
     return [check.run(root) for check in CHECKS]
+
+
+def run_policies(project_root: Path) -> list[PolicyResult]:
+    """Run MXM policies against a project root."""
+
+    root = project_root.resolve()
+
+    return [run_policy(policy, root) for policy in POLICIES]

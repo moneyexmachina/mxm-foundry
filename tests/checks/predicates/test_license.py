@@ -25,10 +25,10 @@ def test_license_check_passes_when_project_matches_canonical(
 ) -> None:
     (tmp_path / "LICENSE").write_text(canonical_license(), encoding="utf-8")
 
-    result = check_license_matches_canonical(tmp_path, "FS003")
+    result = check_license_matches_canonical(tmp_path, "LIC001")
 
     assert result.status == "pass"
-    assert result.code == "FS003"
+    assert result.code == "LIC001"
     assert result.path == tmp_path / "LICENSE"
     assert result.message == "LICENSE matches canonical MXM license."
 
@@ -41,10 +41,10 @@ def test_license_check_fails_when_project_differs_from_canonical(
         encoding="utf-8",
     )
 
-    result = check_license_matches_canonical(tmp_path, "FS003")
+    result = check_license_matches_canonical(tmp_path, "LIC001")
 
     assert result.status == "fail"
-    assert result.code == "FS003"
+    assert result.code == "LIC001"
     assert result.path == tmp_path / "LICENSE"
     assert result.message == "LICENSE does not match canonical MXM license."
 
@@ -67,7 +67,7 @@ def test_license_check_uses_policy_path(
         policy_path,
     )
 
-    result = check_license_matches_canonical(tmp_path, "FS003")
+    result = check_license_matches_canonical(tmp_path, "LIC001")
 
     assert result.status == "pass"
     assert result.path == tmp_path / "LICENSE"
@@ -87,18 +87,18 @@ def test_license_check_fails_when_policy_path_is_missing(
         policy_path,
     )
 
-    result = check_license_matches_canonical(tmp_path, "FS003")
+    result = check_license_matches_canonical(tmp_path, "LIC001")
 
     assert result.status == "fail"
-    assert result.code == "FS003"
+    assert result.code == "LIC001"
     assert result.path == policy_path
     assert "File not found" in result.message
 
 
-def test_license_checks_tuple_contains_fs003() -> None:
+def test_license_checks_tuple_contains_lic001() -> None:
     assert len(LICENSE_CHECKS) == 1
 
     check = LICENSE_CHECKS[0]
 
-    assert check.code == "FS003"
+    assert check.code == "LIC001"
     assert check.name == "LICENSE matches canonical license"

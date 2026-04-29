@@ -2,34 +2,18 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from mxm.foundry.checks.runner import run_checks
+from mxm.foundry.checks.models import Check, CheckResult, Policy
+from mxm.foundry.checks.runner import run_checks, run_policy
+from tests.checks.expected import EXPECTED_CHECK_CODES
 
 
 def test_run_checks_valid_minimal_project(
     minimal_valid_project: Path,
 ) -> None:
     results = run_checks(minimal_valid_project)
-
     assert results
 
-    assert {result.code for result in results} == {
-        "FS001",
-        "FS002",
-        "FS003",
-        "FS004",
-        "FS005",
-        "FS006",
-        "FS007",
-        "FS008",
-        "FS009",
-        "PY001",
-        "PY002",
-        "PY003",
-        "PY004",
-        "PY031",
-        "PY020",
-        "PY030",
-    }
+    assert {result.code for result in results} == set(EXPECTED_CHECK_CODES)
     assert all(result.status == "pass" for result in results)
 
 
@@ -107,21 +91,77 @@ def test_run_checks_uses_deterministic_order(
 ) -> None:
     results = run_checks(minimal_valid_project)
 
-    assert [result.code for result in results] == [
-        "FS001",
-        "FS002",
-        "FS003",
-        "FS004",
-        "FS005",
-        "FS006",
-        "FS007",
-        "FS008",
-        "FS009",
-        "PY001",
-        "PY002",
-        "PY003",
-        "PY004",
-        "PY031",
-        "PY020",
-        "PY030",
-    ]
+    assert [result.code for result in results] == EXPECTED_CHECK_CODES
+
+
+def test_run_policy_runs_all_checks_and_aggregates_pass_status(
+    tmp_path: Path,
+) -> None:
+    policy = Policy(
+        code="POLICY_TEST",
+        name="Test policy",
+        checks=(
+            Check(
+                code="A",
+                name="A",
+                run=lambda root: CheckResult(
+                    code="A",
+                    name="A",
+                    status="pass",
+                    message="ok",
+                    path=root / "a",
+                ),
+            ),
+            Check(
+                code="B",
+                name="B",
+                run=lambda root: CheckResult(
+                    code="B",
+                    name="B",
+                    status="pass",
+                    message="ok",
+                    path=root / "b",
+                ),
+            ),
+        ),
+    )
+
+    result = run_policy(policy, tmp_path)
+
+    assert result.code == "POLICY_TEST"
+    assert result.name == "Test policy"
+    assert result.status == "pass"
+    assert [check.code for check in result.checks] == ["A", "B"]
+
+
+def test_run_policy_fails_when_any_check_fails(tmp_path: Path) -> None:
+    policy = Policy(
+        code="POLICY_TEST",
+        name="Test policy",
+        checks=(
+            Check(
+                code="A",
+                name="A",
+                run=lambda root: CheckResult(
+                    code="A",
+                    name="A",
+                    status="pass",
+                    message="ok",
+                ),
+            ),
+            Check(
+                code="B",
+                name="B",
+                run=lambda root: CheckResult(
+                    code="B",
+                    name="B",
+                    status="fail",
+                    message="bad",
+                ),
+            ),
+        ),
+    )
+
+    result = run_policy(policy, tmp_path)
+
+    assert result.status == "fail"
