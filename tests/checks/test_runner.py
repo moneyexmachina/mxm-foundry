@@ -3,7 +3,12 @@ from __future__ import annotations
 from pathlib import Path
 
 from mxm.foundry.checks.models import Check, CheckResult, Policy
-from mxm.foundry.checks.runner import run_checks, run_policy
+from mxm.foundry.checks.runner import (
+    run_checks,
+    run_misc_checks,
+    run_policies,
+    run_policy,
+)
 from tests.checks.expected import EXPECTED_CHECK_CODES
 
 
@@ -165,3 +170,60 @@ def test_run_policy_fails_when_any_check_fails(tmp_path: Path) -> None:
     result = run_policy(policy, tmp_path)
 
     assert result.status == "fail"
+
+
+def test_run_policies_valid_minimal_project(
+    minimal_valid_project: Path,
+) -> None:
+    results = run_policies(minimal_valid_project)
+
+    assert [result.code for result in results] == ["POLICY_LICENSE"]
+    assert all(result.status == "pass" for result in results)
+
+
+def test_run_policies_license_policy_fails_when_license_missing(
+    minimal_valid_project: Path,
+) -> None:
+    (minimal_valid_project / "LICENSE").unlink()
+
+    results = run_policies(minimal_valid_project)
+    result_by_code = {result.code: result for result in results}
+
+    license_policy = result_by_code["POLICY_LICENSE"]
+
+    assert license_policy.status == "fail"
+    assert [check.code for check in license_policy.checks] == ["FS002", "LIC001"]
+    assert all(check.status == "fail" for check in license_policy.checks)
+
+
+def test_run_policies_license_policy_fails_when_license_differs(
+    minimal_valid_project: Path,
+) -> None:
+    (minimal_valid_project / "LICENSE").write_text(
+        "not the canonical license\n",
+        encoding="utf-8",
+    )
+
+    results = run_policies(minimal_valid_project)
+    result_by_code = {result.code: result for result in results}
+
+    license_policy = result_by_code["POLICY_LICENSE"]
+
+    assert license_policy.status == "fail"
+    assert [check.code for check in license_policy.checks] == ["FS002", "LIC001"]
+
+    check_by_code = {check.code: check for check in license_policy.checks}
+    assert check_by_code["FS002"].status == "pass"
+    assert check_by_code["LIC001"].status == "fail"
+
+
+def test_run_misc_checks_excludes_policy_covered_checks(
+    minimal_valid_project: Path,
+) -> None:
+    results = run_misc_checks(minimal_valid_project)
+    codes = [result.code for result in results]
+
+    assert "FS002" not in codes
+    assert "LIC001" not in codes
+    assert "FS001" in codes
+    assert all(result.status == "pass" for result in results)

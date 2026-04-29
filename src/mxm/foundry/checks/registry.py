@@ -36,3 +36,17 @@ def get_check(code: str) -> Check:
 from mxm.foundry.checks.policies.license import LICENSE_POLICY  # noqa: E402
 
 POLICIES: tuple[Policy, ...] = (LICENSE_POLICY,)
+
+
+def policy_check_codes() -> set[str]:
+    """Return all check codes used by at least one registered policy."""
+
+    return {check.code for policy in POLICIES for check in policy.checks}
+
+
+def misc_checks() -> tuple[Check, ...]:
+    """Return checks not currently covered by any registered policy."""
+
+    covered_codes = policy_check_codes()
+
+    return tuple(check for check in CHECKS if check.code not in covered_codes)
