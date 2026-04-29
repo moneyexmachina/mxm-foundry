@@ -5,7 +5,7 @@ from pathlib import Path
 from mxm.foundry.checks.models import Check, CheckResult
 from mxm.foundry.checks.toml_utils import load_toml, nested_mapping
 
-POLICY_PYPROJECT_PATH = Path(__file__).parents[2] / "policies" / "pyproject.toml"
+POLICY_PYPROJECT_PATH = Path(__file__).parents[2] / "canonical" / "pyproject.toml"
 
 
 def check_black_config_matches_canonical(
