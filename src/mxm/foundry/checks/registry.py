@@ -3,6 +3,7 @@ from __future__ import annotations
 from mxm.foundry.checks.models import Check, Policy
 from mxm.foundry.checks.predicates.filesystem import FILESYSTEM_CHECKS
 from mxm.foundry.checks.predicates.license import LICENSE_CHECKS
+from mxm.foundry.checks.predicates.makefile import MAKEFILE_CHECKS
 from mxm.foundry.checks.predicates.pyproject import PYPROJECT_CHECKS
 from mxm.foundry.checks.predicates.pyproject_config import PYPROJECT_CONFIG_CHECKS
 from mxm.foundry.checks.predicates.pyright_config import PYRIGHT_CONFIG_CHECKS
@@ -13,6 +14,7 @@ CHECKS: tuple[Check, ...] = (
     *PYPROJECT_CHECKS,
     *PYPROJECT_CONFIG_CHECKS,
     *PYRIGHT_CONFIG_CHECKS,
+    *MAKEFILE_CHECKS,
 )
 
 _CHECK_BY_CODE: dict[str, Check] = {}
@@ -34,8 +36,12 @@ def get_check(code: str) -> Check:
 
 # Import policies only after CHECKS and get_check are fully defined.
 from mxm.foundry.checks.policies.license import LICENSE_POLICY  # noqa: E402
+from mxm.foundry.checks.policies.pyright import PYRIGHT_POLICY  # noqa: E402
 
-POLICIES: tuple[Policy, ...] = (LICENSE_POLICY,)
+POLICIES: tuple[Policy, ...] = (
+    LICENSE_POLICY,
+    PYRIGHT_POLICY,
+)
 
 
 def policy_check_codes() -> set[str]:

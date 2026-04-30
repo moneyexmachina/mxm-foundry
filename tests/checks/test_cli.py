@@ -5,11 +5,9 @@ from pathlib import Path
 from typer.testing import CliRunner
 
 from mxm.foundry.cli import app
-from tests.checks.expected import EXPECTED_CHECK_COUNT
+from tests.checks.expected import EXPECTED_CHECK_COUNT, EXPECTED_POLICY_COUNT
 
 runner = CliRunner()
-
-EXPECTED_POLICY_COUNT = 2  # LICENSE_POLICY + POLICY_MISC
 
 
 def test_check_cli_valid_project(minimal_valid_project: Path) -> None:
@@ -19,6 +17,8 @@ def test_check_cli_valid_project(minimal_valid_project: Path) -> None:
     assert "MXM Foundry Check:" in result.stdout
     assert "[POLICY] License policy" in result.stdout
     assert "[POLICY] Other checks" in result.stdout
+    assert "[POLICY] Pyright policy" in result.stdout
+    assert "PASS POLICY_PYRIGHT Pyright policy" in result.stdout
     assert "PASS FS002" in result.stdout
     assert "PASS LIC001" in result.stdout
     assert "PASS POLICY_LICENSE License policy" in result.stdout
@@ -37,7 +37,7 @@ def test_check_cli_invalid_project(minimal_valid_project: Path) -> None:
     assert "FAIL FS001" in result.stdout
     assert "README.md exists" in result.stdout
     assert f"CHECKS(PASS={EXPECTED_CHECK_COUNT - 1} WARN=0 FAIL=1)" in result.stdout
-    assert "POLICIES(PASS=1 FAIL=1)" in result.stdout
+    assert f"POLICIES(PASS={EXPECTED_POLICY_COUNT - 1} FAIL=1)" in result.stdout
 
 
 def test_check_cli_invalid_license_policy(minimal_valid_project: Path) -> None:
@@ -54,7 +54,7 @@ def test_check_cli_invalid_license_policy(minimal_valid_project: Path) -> None:
     assert "FAIL LIC001" in result.stdout
     assert "FAIL POLICY_LICENSE License policy" in result.stdout
     assert f"CHECKS(PASS={EXPECTED_CHECK_COUNT - 1} WARN=0 FAIL=1)" in result.stdout
-    assert "POLICIES(PASS=1 FAIL=1)" in result.stdout
+    assert f"POLICIES(PASS={EXPECTED_POLICY_COUNT - 1} FAIL=1)" in result.stdout
 
 
 def test_check_cli_missing_license_file_fails_both_license_checks(
@@ -70,7 +70,8 @@ def test_check_cli_missing_license_file_fails_both_license_checks(
     assert "FAIL LIC001" in result.stdout
     assert "FAIL POLICY_LICENSE License policy" in result.stdout
     assert f"CHECKS(PASS={EXPECTED_CHECK_COUNT - 2} WARN=0 FAIL=2)" in result.stdout
-    assert "POLICIES(PASS=1 FAIL=1)" in result.stdout
+
+    assert f"POLICIES(PASS={EXPECTED_POLICY_COUNT - 1} FAIL=1)" in result.stdout
 
 
 def test_check_cli_missing_path(tmp_path: Path) -> None:
@@ -80,3 +81,48 @@ def test_check_cli_missing_path(tmp_path: Path) -> None:
 
     assert result.exit_code == 1
     assert "Path does not exist" in result.stdout
+
+
+def test_check_cli_invalid_pyright_policy_when_tool_pyright_present(
+    minimal_valid_project: Path,
+) -> None:
+    pyproject = minimal_valid_project / "pyproject.toml"
+    pyproject.write_text(
+        pyproject.read_text(encoding="utf-8")
+        + '\n[tool.pyright]\ntypeCheckingMode = "strict"\n',
+        encoding="utf-8",
+    )
+
+    result = runner.invoke(app, ["check", str(minimal_valid_project)])
+
+    assert result.exit_code == 1
+    assert "[POLICY] Pyright policy" in result.stdout
+    assert "FAIL PY031" in result.stdout
+    assert "[tool.pyright] is absent" in result.stdout
+    assert "FAIL POLICY_PYRIGHT Pyright policy" in result.stdout
+    assert f"CHECKS(PASS={EXPECTED_CHECK_COUNT - 1} WARN=0 FAIL=1)" in result.stdout
+    assert f"POLICIES(PASS={EXPECTED_POLICY_COUNT - 1} FAIL=1)" in result.stdout
+
+
+def test_check_cli_invalid_pyright_policy_when_makefile_type_target_missing(
+    minimal_valid_project: Path,
+) -> None:
+    makefile = minimal_valid_project / "Makefile"
+    makefile.write_text(
+        ".PHONY: test check\n\n"
+        "test:\n"
+        "\tpoetry run pytest\n\n"
+        "check:\n"
+        "\tpoetry run pytest\n",
+        encoding="utf-8",
+    )
+
+    result = runner.invoke(app, ["check", str(minimal_valid_project)])
+
+    assert result.exit_code == 1
+    assert "[POLICY] Pyright policy" in result.stdout
+    assert "FAIL MK001" in result.stdout
+    assert "FAIL MK002" in result.stdout
+    assert "FAIL POLICY_PYRIGHT Pyright policy" in result.stdout
+    assert f"CHECKS(PASS={EXPECTED_CHECK_COUNT - 2} WARN=0 FAIL=2)" in result.stdout
+    assert f"POLICIES(PASS={EXPECTED_POLICY_COUNT - 1} FAIL=1)" in result.stdout

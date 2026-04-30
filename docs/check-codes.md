@@ -48,6 +48,11 @@ This document enforces **intentional structure**.
 - `PY020` — [tool.black] matches canonical config  
 - `PY030` — pyrightconfig.json matches canonical config  
 
+### Makefile
+
+- `MK001` — Makefile defines type target  
+- `MK002` — type target invokes pyright  
+
 ## Allocation Rules
 
 - Codes must be unique across all families  
