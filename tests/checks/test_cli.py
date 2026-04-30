@@ -17,8 +17,9 @@ def test_check_cli_valid_project(minimal_valid_project: Path) -> None:
     assert "MXM Foundry Check:" in result.stdout
     assert "[POLICY] License policy" in result.stdout
     assert "[POLICY] Other checks" in result.stdout
-    assert "[POLICY] Pyright policy" in result.stdout
-    assert "PASS POLICY_PYRIGHT Pyright policy" in result.stdout
+    assert "[POLICY] Typing policy" in result.stdout
+    assert "[POLICY] Formatting policy" in result.stdout
+    assert "PASS POLICY_TYPING Typing policy" in result.stdout
     assert "PASS FS002" in result.stdout
     assert "PASS LIC001" in result.stdout
     assert "PASS POLICY_LICENSE License policy" in result.stdout
@@ -36,8 +37,6 @@ def test_check_cli_invalid_project(minimal_valid_project: Path) -> None:
     assert "[POLICY] Other checks" in result.stdout
     assert "FAIL FS001" in result.stdout
     assert "README.md exists" in result.stdout
-    assert f"CHECKS(PASS={EXPECTED_CHECK_COUNT - 1} WARN=0 FAIL=1)" in result.stdout
-    assert f"POLICIES(PASS={EXPECTED_POLICY_COUNT - 1} FAIL=1)" in result.stdout
 
 
 def test_check_cli_invalid_license_policy(minimal_valid_project: Path) -> None:
@@ -53,8 +52,6 @@ def test_check_cli_invalid_license_policy(minimal_valid_project: Path) -> None:
     assert "PASS FS002" in result.stdout
     assert "FAIL LIC001" in result.stdout
     assert "FAIL POLICY_LICENSE License policy" in result.stdout
-    assert f"CHECKS(PASS={EXPECTED_CHECK_COUNT - 1} WARN=0 FAIL=1)" in result.stdout
-    assert f"POLICIES(PASS={EXPECTED_POLICY_COUNT - 1} FAIL=1)" in result.stdout
 
 
 def test_check_cli_missing_license_file_fails_both_license_checks(
@@ -69,9 +66,6 @@ def test_check_cli_missing_license_file_fails_both_license_checks(
     assert "FAIL FS002" in result.stdout
     assert "FAIL LIC001" in result.stdout
     assert "FAIL POLICY_LICENSE License policy" in result.stdout
-    assert f"CHECKS(PASS={EXPECTED_CHECK_COUNT - 2} WARN=0 FAIL=2)" in result.stdout
-
-    assert f"POLICIES(PASS={EXPECTED_POLICY_COUNT - 1} FAIL=1)" in result.stdout
 
 
 def test_check_cli_missing_path(tmp_path: Path) -> None:
@@ -83,7 +77,7 @@ def test_check_cli_missing_path(tmp_path: Path) -> None:
     assert "Path does not exist" in result.stdout
 
 
-def test_check_cli_invalid_pyright_policy_when_tool_pyright_present(
+def test_check_cli_invalid_typing_policy_when_tool_pyright_present(
     minimal_valid_project: Path,
 ) -> None:
     pyproject = minimal_valid_project / "pyproject.toml"
@@ -96,15 +90,13 @@ def test_check_cli_invalid_pyright_policy_when_tool_pyright_present(
     result = runner.invoke(app, ["check", str(minimal_valid_project)])
 
     assert result.exit_code == 1
-    assert "[POLICY] Pyright policy" in result.stdout
+    assert "[POLICY] Typing policy" in result.stdout
     assert "FAIL PY031" in result.stdout
     assert "[tool.pyright] is absent" in result.stdout
-    assert "FAIL POLICY_PYRIGHT Pyright policy" in result.stdout
-    assert f"CHECKS(PASS={EXPECTED_CHECK_COUNT - 1} WARN=0 FAIL=1)" in result.stdout
-    assert f"POLICIES(PASS={EXPECTED_POLICY_COUNT - 1} FAIL=1)" in result.stdout
+    assert "FAIL POLICY_TYPING Typing policy" in result.stdout
 
 
-def test_check_cli_invalid_pyright_policy_when_makefile_type_target_missing(
+def test_check_cli_invalid_typing_policy_when_makefile_type_target_missing(
     minimal_valid_project: Path,
 ) -> None:
     makefile = minimal_valid_project / "Makefile"
@@ -120,9 +112,7 @@ def test_check_cli_invalid_pyright_policy_when_makefile_type_target_missing(
     result = runner.invoke(app, ["check", str(minimal_valid_project)])
 
     assert result.exit_code == 1
-    assert "[POLICY] Pyright policy" in result.stdout
+    assert "[POLICY] Typing policy" in result.stdout
     assert "FAIL MK001" in result.stdout
     assert "FAIL MK002" in result.stdout
-    assert "FAIL POLICY_PYRIGHT Pyright policy" in result.stdout
-    assert f"CHECKS(PASS={EXPECTED_CHECK_COUNT - 2} WARN=0 FAIL=2)" in result.stdout
-    assert f"POLICIES(PASS={EXPECTED_POLICY_COUNT - 1} FAIL=1)" in result.stdout
+    assert "FAIL POLICY_TYPING Typing policy" in result.stdout

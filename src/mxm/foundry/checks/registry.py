@@ -34,13 +34,18 @@ def get_check(code: str) -> Check:
         raise KeyError(f"Check with code '{code}' not found.") from exc
 
 
+from mxm.foundry.checks.policies.formatting import FORMATTING_POLICY  # noqa: E402
+
 # Import policies only after CHECKS and get_check are fully defined.
 from mxm.foundry.checks.policies.license import LICENSE_POLICY  # noqa: E402
-from mxm.foundry.checks.policies.pyright import PYRIGHT_POLICY  # noqa: E402
+from mxm.foundry.checks.policies.pyproject import PYPROJECT_POLICY  # noqa: E402
+from mxm.foundry.checks.policies.typing import TYPING_POLICY  # noqa: E402
 
 POLICIES: tuple[Policy, ...] = (
     LICENSE_POLICY,
-    PYRIGHT_POLICY,
+    TYPING_POLICY,
+    FORMATTING_POLICY,
+    PYPROJECT_POLICY,
 )
 
 

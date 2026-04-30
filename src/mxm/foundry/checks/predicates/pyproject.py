@@ -205,6 +205,168 @@ def check_poetry_package_uses_src_mxm_layout(
     )
 
 
+def check_pyproject_section_exists(
+    project_root: Path,
+    code: str,
+    section_path: tuple[str, ...],
+    section_name: str,
+) -> CheckResult:
+    path = project_root / "pyproject.toml"
+
+    document, error = _load_pyproject(project_root)
+    if document is None:
+        return CheckResult(
+            code=code,
+            name=f"{section_name} exists",
+            status="fail",
+            message=error or f"Cannot inspect {section_name}.",
+            path=path,
+        )
+
+    section = nested_mapping(document, section_path)
+    if section is not None:
+        return CheckResult(
+            code=code,
+            name=f"{section_name} exists",
+            status="pass",
+            message=f"Found {section_name}.",
+            path=path,
+        )
+
+    return CheckResult(
+        code=code,
+        name=f"{section_name} exists",
+        status="fail",
+        message=f"Missing {section_name} section.",
+        path=path,
+    )
+
+
+def check_poetry_dependencies_exists(project_root: Path, code: str) -> CheckResult:
+    return check_pyproject_section_exists(
+        project_root,
+        code,
+        ("tool", "poetry", "dependencies"),
+        "[tool.poetry.dependencies]",
+    )
+
+
+def check_poetry_dev_dependencies_exists(project_root: Path, code: str) -> CheckResult:
+    return check_pyproject_section_exists(
+        project_root,
+        code,
+        ("tool", "poetry", "group", "dev", "dependencies"),
+        "[tool.poetry.group.dev.dependencies]",
+    )
+
+
+def check_build_system_exists(project_root: Path, code: str) -> CheckResult:
+    return check_pyproject_section_exists(
+        project_root,
+        code,
+        ("build-system",),
+        "[build-system]",
+    )
+
+
+def check_pytest_ini_options_exists(project_root: Path, code: str) -> CheckResult:
+    return check_pyproject_section_exists(
+        project_root,
+        code,
+        ("tool", "pytest", "ini_options"),
+        "[tool.pytest.ini_options]",
+    )
+
+
+def check_poetry_include_contains_package_py_typed(
+    project_root: Path,
+    code: str,
+) -> CheckResult:
+    path = project_root / "pyproject.toml"
+
+    document, error = _load_pyproject(project_root)
+    if document is None:
+        return CheckResult(
+            code=code,
+            name="Poetry include contains package py.typed",
+            status="fail",
+            message=error or "Cannot inspect Poetry include.",
+            path=path,
+        )
+
+    poetry = _tool_poetry(document)
+    if poetry is None:
+        return CheckResult(
+            code=code,
+            name="Poetry include contains package py.typed",
+            status="fail",
+            message="Cannot inspect Poetry include because [tool.poetry] is missing.",
+            path=path,
+        )
+
+    name = poetry.get("name")
+    if not isinstance(name, str):
+        return CheckResult(
+            code=code,
+            name="Poetry include contains package py.typed",
+            status="fail",
+            message="Cannot infer py.typed path because Poetry project name is missing or not a string.",
+            path=path,
+        )
+
+    if not name.startswith("mxm-"):
+        return CheckResult(
+            code=code,
+            name="Poetry include contains package py.typed",
+            status="fail",
+            message=f"Cannot infer MXM import name because project name does not start with 'mxm-': {name!r}.",
+            path=path,
+        )
+
+    import_name = name.removeprefix("mxm-").replace("-", "_")
+    expected_string = f"src/mxm/{import_name}/py.typed"
+
+    include_value = poetry.get("include")
+    if not isinstance(include_value, Sequence) or isinstance(include_value, str):
+        return CheckResult(
+            code=code,
+            name="Poetry include contains package py.typed",
+            status="fail",
+            message="tool.poetry.include is missing or not a list.",
+            path=path,
+        )
+
+    includes = cast(Sequence[Any], include_value)
+    for include_item in includes:
+        if include_item == expected_string:
+            return CheckResult(
+                code=code,
+                name="Poetry include contains package py.typed",
+                status="pass",
+                message=f"Found py.typed include {expected_string!r}.",
+                path=path,
+            )
+
+        if isinstance(include_item, Mapping):
+            include_mapping = cast(Mapping[str, Any], include_item)
+            if include_mapping.get("path") == expected_string:
+                return CheckResult(
+                    code=code,
+                    name="Poetry include contains package py.typed",
+                    status="pass",
+                    message=f"Found py.typed include {expected_string!r}.",
+                    path=path,
+                )
+
+    return CheckResult(
+        code=code,
+        name="Poetry include contains package py.typed",
+        status="fail",
+        message=f"Expected tool.poetry.include to include {expected_string!r}.",
+        path=path,
+    )
+
+
 def check_tool_pyright_absent(project_root: Path, code: str) -> CheckResult:
     path = project_root / "pyproject.toml"
 
@@ -258,6 +420,31 @@ PYPROJECT_CHECKS: tuple[Check, ...] = (
         code="PY004",
         name="Poetry package uses src/mxm layout",
         run=lambda root: check_poetry_package_uses_src_mxm_layout(root, "PY004"),
+    ),
+    Check(
+        code="PY005",
+        name="[tool.poetry.dependencies] exists",
+        run=lambda root: check_poetry_dependencies_exists(root, "PY005"),
+    ),
+    Check(
+        code="PY006",
+        name="[tool.poetry.group.dev.dependencies] exists",
+        run=lambda root: check_poetry_dev_dependencies_exists(root, "PY006"),
+    ),
+    Check(
+        code="PY007",
+        name="[build-system] exists",
+        run=lambda root: check_build_system_exists(root, "PY007"),
+    ),
+    Check(
+        code="PY008",
+        name="[tool.pytest.ini_options] exists",
+        run=lambda root: check_pytest_ini_options_exists(root, "PY008"),
+    ),
+    Check(
+        code="PY009",
+        name="Poetry include contains package py.typed",
+        run=lambda root: check_poetry_include_contains_package_py_typed(root, "PY009"),
     ),
     Check(
         code="PY031",

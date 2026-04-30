@@ -13,23 +13,65 @@ EXPECTED_CHECK_CODES = [
     "PY002",
     "PY003",
     "PY004",
+    "PY005",
+    "PY006",
+    "PY007",
+    "PY008",
+    "PY009",
     "PY031",
     "PY020",
+    "PY021",
+    "PY022",
+    "PY023",
+    "PY024",
     "PY030",
     "MK001",
     "MK002",
+    "MK003",
+    "MK004",
+    "MK005",
+    "MK006",
 ]
 EXPECTED_CHECK_COUNT = len(EXPECTED_CHECK_CODES)
 
-EXPECTED_POLICIES = ["POLICY_LICENSE", "POLICY_PYRIGHT"]
+EXPECTED_POLICIES = [
+    "POLICY_LICENSE",
+    "POLICY_TYPING",
+    "POLICY_FORMATTING",
+    "POLICY_PYPROJECT",
+]
 EXPECTED_POLICY_CHECK_CODES = {
+    # License
     "FS002",
     "LIC001",
+    # Typing
+    "FS009",
     "FS004",
     "PY030",
     "PY031",
     "MK001",
     "MK002",
+    "PY009",
+    # Formatting
+    "PY020",
+    "PY021",
+    "PY022",
+    "PY023",
+    "PY024",
+    "MK003",
+    "MK004",
+    "MK005",
+    "MK006",
+    # Pyproject
+    "FS003",
+    "PY001",
+    "PY002",
+    "PY003",
+    "PY004",
+    "PY005",
+    "PY006",
+    "PY007",
+    "PY008",
 }
 
 EXPECTED_POLICY_COUNT = len(EXPECTED_POLICIES) + 1  # + POLICY_MISC

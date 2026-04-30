@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from mxm.foundry.checks.predicates import pyproject_config, pyright_config
+from mxm.foundry.checks.predicates import makefile, pyproject_config, pyright_config
 from mxm.foundry.checks.predicates.license import POLICY_LICENSE_PATH
 
 
@@ -47,13 +47,9 @@ def minimal_valid_project(tmp_path: Path) -> Path:
         "",
         encoding="utf-8",
     )
-    (project_root / "Makefile").write_text(
-        ".PHONY: type test check\n\n"
-        "type:\n"
-        "\tpoetry run pyright\n\n"
-        "test:\n"
-        "\tpoetry run pytest\n\n"
-        "check: type test\n",
-        encoding="utf-8",
+    shutil.copyfile(
+        makefile.POLICY_MAKEFILE_PATH,
+        project_root / "Makefile",
     )
+
     return project_root

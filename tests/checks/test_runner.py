@@ -229,7 +229,7 @@ def test_run_misc_checks_excludes_policy_covered_checks(
     assert all(result.status == "pass" for result in results)
 
 
-def test_run_policies_pyright_policy_fails_when_pyright_config_missing(
+def test_run_policies_typing_policy_fails_when_pyright_config_missing(
     minimal_valid_project: Path,
 ) -> None:
     (minimal_valid_project / "pyrightconfig.json").unlink()
@@ -237,18 +237,20 @@ def test_run_policies_pyright_policy_fails_when_pyright_config_missing(
     results = run_policies(minimal_valid_project)
     result_by_code = {result.code: result for result in results}
 
-    pyright_policy = result_by_code["POLICY_PYRIGHT"]
+    typing_policy = result_by_code["POLICY_TYPING"]
 
-    assert pyright_policy.status == "fail"
-    assert [check.code for check in pyright_policy.checks] == [
+    assert typing_policy.status == "fail"
+    assert [check.code for check in typing_policy.checks] == [
+        "FS009",
         "FS004",
         "PY030",
         "PY031",
         "MK001",
         "MK002",
+        "PY009",
     ]
 
-    check_by_code = {check.code: check for check in pyright_policy.checks}
+    check_by_code = {check.code: check for check in typing_policy.checks}
     assert check_by_code["FS004"].status == "fail"
     assert check_by_code["PY030"].status == "fail"
     assert check_by_code["PY031"].status == "pass"
@@ -256,7 +258,7 @@ def test_run_policies_pyright_policy_fails_when_pyright_config_missing(
     assert check_by_code["MK002"].status == "pass"
 
 
-def test_run_policies_pyright_policy_fails_when_tool_pyright_is_present(
+def test_run_policies_typing_policy_fails_when_tool_pyright_is_present(
     minimal_valid_project: Path,
 ) -> None:
     pyproject = minimal_valid_project / "pyproject.toml"
@@ -269,11 +271,11 @@ def test_run_policies_pyright_policy_fails_when_tool_pyright_is_present(
     results = run_policies(minimal_valid_project)
     result_by_code = {result.code: result for result in results}
 
-    pyright_policy = result_by_code["POLICY_PYRIGHT"]
+    typing_policy = result_by_code["POLICY_TYPING"]
 
-    assert pyright_policy.status == "fail"
+    assert typing_policy.status == "fail"
 
-    check_by_code = {check.code: check for check in pyright_policy.checks}
+    check_by_code = {check.code: check for check in typing_policy.checks}
     assert check_by_code["FS004"].status == "pass"
     assert check_by_code["PY030"].status == "pass"
     assert check_by_code["PY031"].status == "fail"

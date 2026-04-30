@@ -44,14 +44,27 @@ This document enforces **intentional structure**.
 - `PY002` — [tool.poetry] exists  
 - `PY003` — Poetry project name starts with mxm-  
 - `PY004` — Poetry package uses src/mxm layout  
+- `PY005` — [tool.poetry.dependencies] exists  
+- `PY006` — [tool.poetry.group.dev.dependencies] exists  
+- `PY007` — [build-system] exists  
+- `PY008` — [tool.pytest.ini_options] exists  
+- `PY009` — Poetry include contains package py.typed  
 - `PY031` — [tool.pyright] is absent  
 - `PY020` — [tool.black] matches canonical config  
+- `PY021` — [tool.ruff] matches canonical config  
+- `PY022` — [tool.ruff.lint] matches canonical config  
+- `PY023` — [tool.ruff.lint.isort] matches canonical config  
+- `PY024` — [tool.isort] matches canonical config  
 - `PY030` — pyrightconfig.json matches canonical config  
 
 ### Makefile
 
-- `MK001` — Makefile defines type target  
-- `MK002` — type target invokes pyright  
+- `MK001` — Makefile defines canonical type target  
+- `MK002` — type target matches canonical commands  
+- `MK003` — Makefile defines canonical lint target  
+- `MK004` — lint target matches canonical commands  
+- `MK005` — Makefile defines canonical fmt target  
+- `MK006` — fmt target matches canonical commands  
 
 ## Allocation Rules
 
