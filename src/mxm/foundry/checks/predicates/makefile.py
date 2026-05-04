@@ -10,6 +10,8 @@ TYPE_TARGET = "type"
 LINT_TARGET = "lint"
 FMT_TARGET = "fmt"
 TEST_TARGET = "test"
+CHECK_TARGET = "check"
+CI_TARGET = "ci"
 
 
 def read_makefile_path(path: Path) -> tuple[str | None, str | None]:
@@ -39,7 +41,7 @@ def target_commands(contents: str, target_name: str) -> list[str] | None:
             continue
 
         if not line.startswith(("\t", " ")):
-            if stripped == f"{target_name}:":
+            if stripped.startswith(f"{target_name}:"):
                 in_target = True
                 continue
 
@@ -248,6 +250,42 @@ def check_makefile_test_matches_canonical_commands(
     )
 
 
+def check_makefile_defines_check_target(
+    project_root: Path,
+    code: str,
+) -> CheckResult:
+    return check_makefile_defines_canonical_target(project_root, code, CHECK_TARGET)
+
+
+def check_makefile_check_matches_canonical_commands(
+    project_root: Path,
+    code: str,
+) -> CheckResult:
+    return check_makefile_target_matches_canonical_commands(
+        project_root,
+        code,
+        CHECK_TARGET,
+    )
+
+
+def check_makefile_defines_ci_target(
+    project_root: Path,
+    code: str,
+) -> CheckResult:
+    return check_makefile_defines_canonical_target(project_root, code, CI_TARGET)
+
+
+def check_makefile_ci_matches_canonical_commands(
+    project_root: Path,
+    code: str,
+) -> CheckResult:
+    return check_makefile_target_matches_canonical_commands(
+        project_root,
+        code,
+        CI_TARGET,
+    )
+
+
 MAKEFILE_CHECKS: tuple[Check, ...] = (
     Check(
         code="MK001",
@@ -288,5 +326,25 @@ MAKEFILE_CHECKS: tuple[Check, ...] = (
         code="MK008",
         name="test target matches canonical commands",
         run=lambda root: check_makefile_test_matches_canonical_commands(root, "MK008"),
+    ),
+    Check(
+        code="MK009",
+        name="Makefile defines canonical check target",
+        run=lambda root: check_makefile_defines_check_target(root, "MK009"),
+    ),
+    Check(
+        code="MK010",
+        name="check target matches canonical commands",
+        run=lambda root: check_makefile_check_matches_canonical_commands(root, "MK010"),
+    ),
+    Check(
+        code="MK011",
+        name="Makefile defines canonical ci target",
+        run=lambda root: check_makefile_defines_ci_target(root, "MK011"),
+    ),
+    Check(
+        code="MK012",
+        name="ci target matches canonical commands",
+        run=lambda root: check_makefile_ci_matches_canonical_commands(root, "MK012"),
     ),
 )

@@ -154,6 +154,27 @@ def check_package_py_typed(project_root: Path, code: str) -> CheckResult:
     )
 
 
+def check_changelog_exists(project_root: Path, code: str) -> CheckResult:
+    path = project_root / "CHANGELOG.md"
+
+    if path.exists():
+        return CheckResult(
+            code=code,
+            name="CHANGELOG.md exists",
+            status="pass",
+            message="Found CHANGELOG.md.",
+            path=path,
+        )
+
+    return CheckResult(
+        code=code,
+        name="CHANGELOG.md exists",
+        status="fail",
+        message="CHANGELOG.md is missing.",
+        path=path,
+    )
+
+
 FILESYSTEM_CHECKS: tuple[Check, ...] = (
     Check(
         code="FS001",
@@ -199,5 +220,10 @@ FILESYSTEM_CHECKS: tuple[Check, ...] = (
         code="FS009",
         name="package py.typed exists",
         run=lambda root: check_package_py_typed(root, "FS009"),
+    ),
+    Check(
+        code="FS010",
+        name="CHANGELOG.md exists",
+        run=lambda root: check_changelog_exists(root, "FS010"),
     ),
 )

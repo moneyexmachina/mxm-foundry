@@ -225,7 +225,6 @@ def test_run_misc_checks_excludes_policy_covered_checks(
 
     assert "FS002" not in codes
     assert "LIC001" not in codes
-    assert "FS001" in codes
     assert all(result.status == "pass" for result in results)
 
 

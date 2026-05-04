@@ -33,6 +33,7 @@ This document enforces **intentional structure**.
 - `FS007` — src/mxm directory exists  
 - `FS008` — single MXM package directory exists  
 - `FS009` — package py.typed exists  
+- `FS010` — CHANGELOG.md exists  
 
 ### License (LIC)
 
@@ -67,7 +68,14 @@ This document enforces **intentional structure**.
 - `MK006` — fmt target matches canonical commands  
 - `MK007` — Makefile defines canonical test target  
 - `MK008` — test target matches canonical commands  
+- `MK009` — Makefile defines canonical check target  
+- `MK010` — check target matches canonical commands  
+- `MK011` — Makefile defines canonical ci target  
+- `MK012` — ci target matches canonical commands  
 
+### Documentation
+- `DOC001` — README.md has required sections  
+- `DOC002` — CHANGELOG.md has minimal structure  
 ## Allocation Rules
 
 - Codes must be unique across all families  

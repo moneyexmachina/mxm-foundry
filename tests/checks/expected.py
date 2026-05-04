@@ -8,6 +8,7 @@ EXPECTED_CHECK_CODES = [
     "FS007",
     "FS008",
     "FS009",
+    "FS010",
     "LIC001",
     "PY001",
     "PY002",
@@ -33,6 +34,12 @@ EXPECTED_CHECK_CODES = [
     "MK006",
     "MK007",
     "MK008",
+    "MK009",
+    "MK010",
+    "MK011",
+    "MK012",
+    "DOC001",
+    "DOC002",
 ]
 EXPECTED_CHECK_COUNT = len(EXPECTED_CHECK_CODES)
 
@@ -42,6 +49,8 @@ EXPECTED_POLICIES = [
     "POLICY_FORMATTING",
     "POLICY_PYPROJECT",
     "POLICY_TESTING",
+    "POLICY_CHECK_GATE",
+    "POLICY_DOCUMENTATION",
 ]
 EXPECTED_POLICY_CHECK_CODES = {
     # License
@@ -79,6 +88,17 @@ EXPECTED_POLICY_CHECK_CODES = {
     "PY008",
     # Testing
     "FS006",
+    # Check Gate
+    "FS005",
+    "MK009",
+    "MK010",
+    "MK011",
+    "MK012",
+    # Documentation
+    "FS001",
+    "FS010",
+    "DOC001",
+    "DOC002",
 }
 
 EXPECTED_POLICY_COUNT = len(EXPECTED_POLICIES) + 1  # + POLICY_MISC

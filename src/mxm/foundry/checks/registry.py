@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from mxm.foundry.checks.models import Check, Policy
+from mxm.foundry.checks.predicates.documentation import DOCUMENTATION_CHECKS
 from mxm.foundry.checks.predicates.filesystem import FILESYSTEM_CHECKS
 from mxm.foundry.checks.predicates.license import LICENSE_CHECKS
 from mxm.foundry.checks.predicates.makefile import MAKEFILE_CHECKS
@@ -15,6 +16,7 @@ CHECKS: tuple[Check, ...] = (
     *PYPROJECT_CONFIG_CHECKS,
     *PYRIGHT_CONFIG_CHECKS,
     *MAKEFILE_CHECKS,
+    *DOCUMENTATION_CHECKS,
 )
 
 _CHECK_BY_CODE: dict[str, Check] = {}
@@ -34,6 +36,8 @@ def get_check(code: str) -> Check:
         raise KeyError(f"Check with code '{code}' not found.") from exc
 
 
+from mxm.foundry.checks.policies.check_gate import CHECK_GATE_POLICY  # noqa: E402
+from mxm.foundry.checks.policies.documentation import DOCUMENTATION_POLICY  # noqa: E402
 from mxm.foundry.checks.policies.formatting import FORMATTING_POLICY  # noqa: E402
 
 # Import policies only after CHECKS and get_check are fully defined.
@@ -48,6 +52,8 @@ POLICIES: tuple[Policy, ...] = (
     FORMATTING_POLICY,
     PYPROJECT_POLICY,
     TESTING_POLICY,
+    CHECK_GATE_POLICY,
+    DOCUMENTATION_POLICY,
 )
 
 

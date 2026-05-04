@@ -33,12 +33,15 @@ def minimal_valid_project(tmp_path: Path) -> Path:
         POLICY_LICENSE_PATH,
         project_root / "LICENSE",
     )
-
     (project_root / "README.md").write_text(
-        "# mxm-example\n",
+        "# Example\n\n## Purpose\n\n## Installation\n\n## Usage\n\n## Development\n",
         encoding="utf-8",
     )
 
+    (project_root / "CHANGELOG.md").write_text(
+        "# Changelog\n\n## Unreleased\n",
+        encoding="utf-8",
+    )
     (package_root / "__init__.py").write_text(
         "",
         encoding="utf-8",
