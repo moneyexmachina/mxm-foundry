@@ -9,6 +9,7 @@ POLICY_MAKEFILE_PATH = Path(__file__).parents[2] / "canonical" / "Makefile"
 TYPE_TARGET = "type"
 LINT_TARGET = "lint"
 FMT_TARGET = "fmt"
+TEST_TARGET = "test"
 
 
 def read_makefile_path(path: Path) -> tuple[str | None, str | None]:
@@ -229,6 +230,24 @@ def check_makefile_fmt_matches_canonical_commands(
     )
 
 
+def check_makefile_defines_test_target(
+    project_root: Path,
+    code: str,
+) -> CheckResult:
+    return check_makefile_defines_canonical_target(project_root, code, TEST_TARGET)
+
+
+def check_makefile_test_matches_canonical_commands(
+    project_root: Path,
+    code: str,
+) -> CheckResult:
+    return check_makefile_target_matches_canonical_commands(
+        project_root,
+        code,
+        TEST_TARGET,
+    )
+
+
 MAKEFILE_CHECKS: tuple[Check, ...] = (
     Check(
         code="MK001",
@@ -259,5 +278,15 @@ MAKEFILE_CHECKS: tuple[Check, ...] = (
         code="MK006",
         name="fmt target matches canonical commands",
         run=lambda root: check_makefile_fmt_matches_canonical_commands(root, "MK006"),
+    ),
+    Check(
+        code="MK007",
+        name="Makefile defines canonical test target",
+        run=lambda root: check_makefile_defines_test_target(root, "MK007"),
+    ),
+    Check(
+        code="MK008",
+        name="test target matches canonical commands",
+        run=lambda root: check_makefile_test_matches_canonical_commands(root, "MK008"),
     ),
 )

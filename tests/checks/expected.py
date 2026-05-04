@@ -31,6 +31,8 @@ EXPECTED_CHECK_CODES = [
     "MK004",
     "MK005",
     "MK006",
+    "MK007",
+    "MK008",
 ]
 EXPECTED_CHECK_COUNT = len(EXPECTED_CHECK_CODES)
 
@@ -39,6 +41,7 @@ EXPECTED_POLICIES = [
     "POLICY_TYPING",
     "POLICY_FORMATTING",
     "POLICY_PYPROJECT",
+    "POLICY_TESTING",
 ]
 EXPECTED_POLICY_CHECK_CODES = {
     # License
@@ -62,6 +65,8 @@ EXPECTED_POLICY_CHECK_CODES = {
     "MK004",
     "MK005",
     "MK006",
+    "MK007",
+    "MK008",
     # Pyproject
     "FS003",
     "PY001",
@@ -72,6 +77,8 @@ EXPECTED_POLICY_CHECK_CODES = {
     "PY006",
     "PY007",
     "PY008",
+    # Testing
+    "FS006",
 }
 
 EXPECTED_POLICY_COUNT = len(EXPECTED_POLICIES) + 1  # + POLICY_MISC

@@ -39,6 +39,7 @@ from mxm.foundry.checks.policies.formatting import FORMATTING_POLICY  # noqa: E4
 # Import policies only after CHECKS and get_check are fully defined.
 from mxm.foundry.checks.policies.license import LICENSE_POLICY  # noqa: E402
 from mxm.foundry.checks.policies.pyproject import PYPROJECT_POLICY  # noqa: E402
+from mxm.foundry.checks.policies.testing import TESTING_POLICY  # noqa: E402
 from mxm.foundry.checks.policies.typing import TYPING_POLICY  # noqa: E402
 
 POLICIES: tuple[Policy, ...] = (
@@ -46,6 +47,7 @@ POLICIES: tuple[Policy, ...] = (
     TYPING_POLICY,
     FORMATTING_POLICY,
     PYPROJECT_POLICY,
+    TESTING_POLICY,
 )
 
 

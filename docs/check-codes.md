@@ -65,6 +65,8 @@ This document enforces **intentional structure**.
 - `MK004` — lint target matches canonical commands  
 - `MK005` — Makefile defines canonical fmt target  
 - `MK006` — fmt target matches canonical commands  
+- `MK007` — Makefile defines canonical test target  
+- `MK008` — test target matches canonical commands  
 
 ## Allocation Rules
 
