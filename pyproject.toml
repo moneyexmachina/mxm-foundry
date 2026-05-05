@@ -1,16 +1,22 @@
 [tool.poetry]
 name = "mxm-foundry"
-version = "0.0.1"
-description = "Scaffold/check/sync tool to standardize MXM Python packages."
+version = "0.1.0"
+description = "Policy-driven validation and standardisation tool for MXM Python packages."
+keywords = ["mxm", "foundry", "policy", "validation", "scaffold", "cli"]
 authors = ["mxm <contact@moneyexmachina.com>"]
 license = "MIT"
 readme = "README.md"
 packages = [{ include = "mxm/foundry", from = "src" }]
 homepage = "https://github.com/moneyexmachina/mxm-foundry"
 repository = "https://github.com/moneyexmachina/mxm-foundry"
-keywords = ["mxm", "scaffold", "cli"]
 include = ["src/mxm/foundry/py.typed"]
-
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3.13",
+  "Typing :: Typed",
+]
 [tool.poetry.dependencies]
 python = ">=3.13,<4.0"
 typer = "^0.20.0"

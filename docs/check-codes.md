@@ -76,6 +76,7 @@ This document enforces **intentional structure**.
 ### Documentation
 - `DOC001` — README.md has required sections  
 - `DOC002` — CHANGELOG.md has minimal structure  
+
 ## Allocation Rules
 
 - Codes must be unique across all families  
