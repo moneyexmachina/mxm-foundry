@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "mxm-foundry"
-version = "0.1.0"
+version = "0.1.1"
 description = "Policy-driven validation and standardisation tool for MXM Python packages."
 keywords = ["mxm", "foundry", "policy", "validation", "scaffold", "cli"]
 authors = ["mxm <contact@moneyexmachina.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{ include = "mxm/foundry", from = "src" }]
+packages = [{ include = "mxm", from = "src" }]
 homepage = "https://github.com/moneyexmachina/mxm-foundry"
 repository = "https://github.com/moneyexmachina/mxm-foundry"
 include = ["src/mxm/foundry/py.typed"]

@@ -4,6 +4,24 @@ from pathlib import Path
 
 from mxm.foundry.checks.models import Check, CheckResult
 
+IGNORED_PACKAGE_DIR_NAMES = frozenset({"__pycache__"})
+
+
+def _mxm_root(project_root: Path) -> Path:
+    return project_root / "src" / "mxm"
+
+
+def _mxm_package_dirs(project_root: Path) -> list[Path]:
+    mxm_root = _mxm_root(project_root)
+    if not mxm_root.is_dir():
+        return []
+
+    return sorted(
+        path
+        for path in mxm_root.iterdir()
+        if path.is_dir() and path.name not in IGNORED_PACKAGE_DIR_NAMES
+    )
+
 
 def check_required_file(
     project_root: Path, relative_path: str, code: str
@@ -57,10 +75,49 @@ def check_required_directory(
     )
 
 
+def check_src_mxm_is_namespace_package(project_root: Path, code: str) -> CheckResult:
+    """Check that src/mxm is a PEP 420 namespace package root.
+
+    For MXM packages, `mxm` is the shared namespace. Therefore `src/mxm`
+    must not contain `__init__.py`; otherwise it becomes a regular package
+    and can interfere with composition across separate distributions.
+    """
+
+    mxm_root = _mxm_root(project_root)
+
+    if not mxm_root.is_dir():
+        return CheckResult(
+            code=code,
+            name="src/mxm is namespace package root",
+            status="fail",
+            message="Cannot inspect namespace package root because src/mxm is missing.",
+            path=mxm_root,
+        )
+
+    init_path = mxm_root / "__init__.py"
+
+    if init_path.exists():
+        return CheckResult(
+            code=code,
+            name="src/mxm is namespace package root",
+            status="fail",
+            message="src/mxm must not contain __init__.py for PEP 420 namespace packaging.",
+            path=init_path,
+        )
+
+    return CheckResult(
+        code=code,
+        name="src/mxm is namespace package root",
+        status="pass",
+        message="src/mxm has no __init__.py and can act as a PEP 420 namespace package root.",
+        path=mxm_root,
+    )
+
+
 def check_single_mxm_package(project_root: Path, code: str) -> CheckResult:
     """Check that exactly one package directory exists under src/mxm."""
 
-    mxm_root = project_root / "src" / "mxm"
+    mxm_root = _mxm_root(project_root)
 
     if not mxm_root.is_dir():
         return CheckResult(
@@ -71,11 +128,7 @@ def check_single_mxm_package(project_root: Path, code: str) -> CheckResult:
             path=mxm_root,
         )
 
-    package_dirs = sorted(
-        path
-        for path in mxm_root.iterdir()
-        if path.is_dir() and path.name != "__pycache__"
-    )
+    package_dirs = _mxm_package_dirs(project_root)
 
     if len(package_dirs) == 1:
         return CheckResult(
@@ -108,7 +161,7 @@ def check_single_mxm_package(project_root: Path, code: str) -> CheckResult:
 def check_package_py_typed(project_root: Path, code: str) -> CheckResult:
     """Check that the discovered MXM package contains a py.typed marker."""
 
-    mxm_root = project_root / "src" / "mxm"
+    mxm_root = _mxm_root(project_root)
 
     if not mxm_root.is_dir():
         return CheckResult(
@@ -119,11 +172,7 @@ def check_package_py_typed(project_root: Path, code: str) -> CheckResult:
             path=mxm_root,
         )
 
-    package_dirs = sorted(
-        path
-        for path in mxm_root.iterdir()
-        if path.is_dir() and path.name != "__pycache__"
-    )
+    package_dirs = _mxm_package_dirs(project_root)
 
     if len(package_dirs) != 1:
         return CheckResult(
@@ -157,7 +206,7 @@ def check_package_py_typed(project_root: Path, code: str) -> CheckResult:
 def check_changelog_exists(project_root: Path, code: str) -> CheckResult:
     path = project_root / "CHANGELOG.md"
 
-    if path.exists():
+    if path.is_file():
         return CheckResult(
             code=code,
             name="CHANGELOG.md exists",
@@ -225,5 +274,10 @@ FILESYSTEM_CHECKS: tuple[Check, ...] = (
         code="FS010",
         name="CHANGELOG.md exists",
         run=lambda root: check_changelog_exists(root, "FS010"),
+    ),
+    Check(
+        code="FS011",
+        name="src/mxm is namespace package root",
+        run=lambda root: check_src_mxm_is_namespace_package(root, "FS011"),
     ),
 )

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mxm-example"
-packages = [{ include = "mxm/example", from = "src" }]
+packages = [{ include = "mxm", from = "src" }]
 include = ["src/mxm/example/py.typed"]
 
 [tool.poetry.dependencies]

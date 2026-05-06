@@ -4,6 +4,7 @@ from pathlib import Path
 
 from mxm.foundry.checks.predicates.pyproject import (
     check_build_system_exists,
+    check_mxm_package_matches_poetry_distribution_name,
     check_poetry_dependencies_exists,
     check_poetry_dev_dependencies_exists,
     check_poetry_include_contains_package_py_typed,
@@ -123,25 +124,7 @@ def test_check_poetry_package_uses_src_mxm_layout_pass(tmp_path: Path) -> None:
         """
 [tool.poetry]
 name = "mxm-example"
-packages = [{ include = "mxm/example", from = "src" }]
-""",
-    )
-
-    result = check_poetry_package_uses_src_mxm_layout(tmp_path, "PY004")
-
-    assert result.status == "pass"
-    assert result.code == "PY004"
-
-
-def test_check_poetry_package_uses_src_mxm_layout_supports_hyphen_to_underscore(
-    tmp_path: Path,
-) -> None:
-    write_pyproject(
-        tmp_path,
-        """
-[tool.poetry]
-name = "mxm-example-tools"
-packages = [{ include = "mxm/example_tools", from = "src" }]
+packages = [{ include = "mxm", from = "src" }]
 """,
     )
 
@@ -176,7 +159,7 @@ def test_check_poetry_package_uses_src_mxm_layout_fails_when_include_wrong(
         """
 [tool.poetry]
 name = "mxm-example"
-packages = [{ include = "mxm/wrong", from = "src" }]
+packages = [{ include = "mxm/example", from = "src" }]
 """,
     )
 
@@ -194,7 +177,7 @@ def test_check_poetry_package_uses_src_mxm_layout_fails_when_from_wrong(
         """
 [tool.poetry]
 name = "mxm-example"
-packages = [{ include = "mxm/example", from = "." }]
+packages = [{ include = "mxm", from = "." }]
 """,
     )
 
@@ -456,6 +439,96 @@ pythonpath = ["src"]
     assert result.code == "PY008"
 
 
+def test_check_mxm_package_matches_poetry_distribution_name_pass(
+    tmp_path: Path,
+) -> None:
+    write_pyproject(
+        tmp_path,
+        """
+[tool.poetry]
+name = "mxm-example"
+""",
+    )
+    (tmp_path / "src" / "mxm" / "example").mkdir(parents=True)
+
+    result = check_mxm_package_matches_poetry_distribution_name(tmp_path, "PY010")
+
+    assert result.status == "pass"
+    assert result.code == "PY010"
+    assert result.path == tmp_path / "src" / "mxm" / "example"
+
+
+def test_check_mxm_package_matches_poetry_distribution_name_supports_hyphen_to_underscore(
+    tmp_path: Path,
+) -> None:
+    write_pyproject(
+        tmp_path,
+        """
+[tool.poetry]
+name = "mxm-example-tools"
+""",
+    )
+    (tmp_path / "src" / "mxm" / "example_tools").mkdir(parents=True)
+
+    result = check_mxm_package_matches_poetry_distribution_name(tmp_path, "PY010")
+
+    assert result.status == "pass"
+    assert result.code == "PY010"
+    assert result.path == tmp_path / "src" / "mxm" / "example_tools"
+
+
+def test_check_mxm_package_matches_poetry_distribution_name_fails_when_directory_missing(
+    tmp_path: Path,
+) -> None:
+    write_pyproject(
+        tmp_path,
+        """
+[tool.poetry]
+name = "mxm-example"
+""",
+    )
+
+    result = check_mxm_package_matches_poetry_distribution_name(tmp_path, "PY010")
+
+    assert result.status == "fail"
+    assert result.code == "PY010"
+    assert result.path == tmp_path / "src" / "mxm" / "example"
+
+
+def test_check_mxm_package_matches_poetry_distribution_name_fails_when_name_missing(
+    tmp_path: Path,
+) -> None:
+    write_pyproject(
+        tmp_path,
+        """
+[tool.poetry]
+description = "Example"
+""",
+    )
+
+    result = check_mxm_package_matches_poetry_distribution_name(tmp_path, "PY010")
+
+    assert result.status == "fail"
+    assert result.code == "PY010"
+
+
+def test_check_mxm_package_matches_poetry_distribution_name_fails_when_name_wrong_prefix(
+    tmp_path: Path,
+) -> None:
+    write_pyproject(
+        tmp_path,
+        """
+[tool.poetry]
+name = "example"
+""",
+    )
+
+    result = check_mxm_package_matches_poetry_distribution_name(tmp_path, "PY010")
+
+    assert result.status == "fail"
+    assert result.code == "PY010"
+
+
 def test_pyproject_checks_include_expected_checks() -> None:
     from mxm.foundry.checks.predicates import pyproject
 
@@ -471,6 +544,7 @@ def test_pyproject_checks_include_expected_checks() -> None:
         "PY007",
         "PY008",
         "PY009",
+        "PY010",
         "PY031",
     }
 

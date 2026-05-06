@@ -5,7 +5,38 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [0.1.1] - 2026-05-06
 
+### Fixed
+
+- Corrected MXM namespace package policy for Poetry package declarations.
+- Changed canonical Poetry package inclusion from leaf package form:
+
+  ```toml
+  packages = [{ include = "mxm/<package>", from = "src" }]
+  ```
+
+  to namespace root form:
+
+  ```toml
+  packages = [{ include = "mxm", from = "src" }]
+  ```
+
+- Added validation that `src/mxm` is a PEP 420 namespace package root and does not contain `__init__.py`.
+- Added validation that `src/mxm/<package>` matches the Poetry distribution name suffix.
+- Updated pyproject policy coverage to include MXM namespace package structure checks.
+- Removed reliance on the obsolete “Other checks” policy grouping from CLI tests.
+
+### Changed
+
+- Clarified the separation between filesystem-derived checks and Python project/package setup policy.
+- Updated canonical `pyproject.toml` expectations for all MXM packages.
+- Updated test coverage for namespace package layout, Poetry package declarations, and CLI policy output.
+
+### Notes
+
+- This release fixes a policy error discovered during Session 42 while applying `mxm-foundry` to `mxm-types`.
+- The previous policy incorrectly required Poetry to include the leaf package path, which conflicted with the intended MXM namespace package model.
 ## [0.1.0] — 2026-05-04
 
 ### Added

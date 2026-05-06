@@ -5,7 +5,6 @@ from pathlib import Path
 from typer.testing import CliRunner
 
 from mxm.foundry.cli import app
-from tests.checks.expected import EXPECTED_CHECK_COUNT, EXPECTED_POLICY_COUNT
 
 runner = CliRunner()
 
@@ -16,16 +15,20 @@ def test_check_cli_valid_project(minimal_valid_project: Path) -> None:
     assert result.exit_code == 0
     assert "MXM Foundry Check:" in result.stdout
     assert "[POLICY] License policy" in result.stdout
-    assert "[POLICY] Other checks" in result.stdout
     assert "[POLICY] Typing policy" in result.stdout
     assert "[POLICY] Formatting policy" in result.stdout
+    assert "[POLICY] Pyproject policy" in result.stdout
+    assert "[POLICY] Testing policy" in result.stdout
+    assert "[POLICY] Check gate policy" in result.stdout
+    assert "[POLICY] Documentation policy" in result.stdout
     assert "PASS POLICY_TYPING Typing policy" in result.stdout
     assert "PASS FS002" in result.stdout
     assert "PASS LIC001" in result.stdout
     assert "PASS POLICY_LICENSE License policy" in result.stdout
-    assert "PASS POLICY_MISC Other checks" in result.stdout
-    assert f"CHECKS(PASS={EXPECTED_CHECK_COUNT} WARN=0 FAIL=0)" in result.stdout
-    assert f"POLICIES(PASS={EXPECTED_POLICY_COUNT} FAIL=0)" in result.stdout
+    assert "PASS POLICY_PYPROJECT Pyproject policy" in result.stdout
+    assert "PASS POLICY_TESTING Testing policy" in result.stdout
+    assert "PASS POLICY_CHECK_GATE Check gate policy" in result.stdout
+    assert "PASS POLICY_DOCUMENTATION Documentation policy" in result.stdout
 
 
 def test_check_cli_invalid_project(minimal_valid_project: Path) -> None:
@@ -34,7 +37,7 @@ def test_check_cli_invalid_project(minimal_valid_project: Path) -> None:
     result = runner.invoke(app, ["check", str(minimal_valid_project)])
 
     assert result.exit_code == 1
-    assert "[POLICY] Other checks" in result.stdout
+    assert "[POLICY] Documentation policy" in result.stdout
     assert "FAIL FS001" in result.stdout
     assert "README.md exists" in result.stdout
 

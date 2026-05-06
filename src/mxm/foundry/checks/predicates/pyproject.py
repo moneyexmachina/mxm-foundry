@@ -130,12 +130,13 @@ def check_poetry_package_uses_src_mxm_layout(
     project_root: Path, code: str
 ) -> CheckResult:
     path = project_root / "pyproject.toml"
+    expected_include = "mxm"
 
     document, error = _load_pyproject(project_root)
     if document is None:
         return CheckResult(
             code=code,
-            name="Poetry package uses src/mxm layout",
+            name="Poetry package includes mxm namespace from src",
             status="fail",
             message=error or "Cannot inspect Poetry package layout.",
             path=path,
@@ -145,42 +146,22 @@ def check_poetry_package_uses_src_mxm_layout(
     if poetry is None:
         return CheckResult(
             code=code,
-            name="Poetry package uses src/mxm layout",
+            name="Poetry package includes mxm namespace from src",
             status="fail",
             message="Cannot inspect Poetry package layout because [tool.poetry] is missing.",
             path=path,
         )
 
-    name = poetry.get("name")
-    if not isinstance(name, str):
-        return CheckResult(
-            code=code,
-            name="Poetry package uses src/mxm layout",
-            status="fail",
-            message="Cannot infer package layout because Poetry project name is missing or not a string.",
-            path=path,
-        )
-
-    if not name.startswith("mxm-"):
-        return CheckResult(
-            code=code,
-            name="Poetry package uses src/mxm layout",
-            status="fail",
-            message=f"Cannot infer MXM import name because project name does not start with 'mxm-': {name!r}.",
-            path=path,
-        )
-
-    import_name = name.removeprefix("mxm-").replace("-", "_")
-    expected_include = f"mxm/{import_name}"
     packages_value = poetry.get("packages")
     if not isinstance(packages_value, Sequence) or isinstance(packages_value, str):
         return CheckResult(
             code=code,
-            name="Poetry package uses src/mxm layout",
+            name="Poetry package includes mxm namespace from src",
             status="fail",
             message="tool.poetry.packages is missing or not a list.",
             path=path,
         )
+
     packages = cast(Sequence[Any], packages_value)
     for package_value in packages:
         if not isinstance(package_value, Mapping):
@@ -191,16 +172,17 @@ def check_poetry_package_uses_src_mxm_layout(
         if package.get("include") == expected_include and package.get("from") == "src":
             return CheckResult(
                 code=code,
-                name="Poetry package uses src/mxm layout",
+                name="Poetry package includes mxm namespace from src",
                 status="pass",
-                message=f"Found package include {expected_include!r} from 'src'.",
+                message="Found package include 'mxm' from 'src'.",
                 path=path,
             )
+
     return CheckResult(
         code=code,
-        name="Poetry package uses src/mxm layout",
+        name="Poetry package includes mxm namespace from src",
         status="fail",
-        message=f"Expected tool.poetry.packages to include {{ include = {expected_include!r}, from = 'src' }}.",
+        message="Expected tool.poetry.packages to include { include = 'mxm', from = 'src' }.",
         path=path,
     )
 
@@ -400,6 +382,72 @@ def check_tool_pyright_absent(project_root: Path, code: str) -> CheckResult:
     )
 
 
+def check_mxm_package_matches_poetry_distribution_name(
+    project_root: Path,
+    code: str,
+) -> CheckResult:
+    path = project_root / "pyproject.toml"
+
+    document, error = _load_pyproject(project_root)
+    if document is None:
+        return CheckResult(
+            code=code,
+            name="src/mxm package matches Poetry distribution name",
+            status="fail",
+            message=error or "Cannot inspect Poetry distribution name.",
+            path=path,
+        )
+
+    poetry = _tool_poetry(document)
+    if poetry is None:
+        return CheckResult(
+            code=code,
+            name="src/mxm package matches Poetry distribution name",
+            status="fail",
+            message="Cannot infer package name because [tool.poetry] is missing.",
+            path=path,
+        )
+
+    name = poetry.get("name")
+    if not isinstance(name, str):
+        return CheckResult(
+            code=code,
+            name="src/mxm package matches Poetry distribution name",
+            status="fail",
+            message="Cannot infer package name because Poetry project name is missing or not a string.",
+            path=path,
+        )
+
+    if not name.startswith("mxm-"):
+        return CheckResult(
+            code=code,
+            name="src/mxm package matches Poetry distribution name",
+            status="fail",
+            message=f"Cannot infer MXM import name because project name does not start with 'mxm-': {name!r}.",
+            path=path,
+        )
+
+    import_name = name.removeprefix("mxm-").replace("-", "_")
+    expected_package_dir = project_root / "src" / "mxm" / import_name
+
+    if expected_package_dir.is_dir():
+        return CheckResult(
+            code=code,
+            name="src/mxm package matches Poetry distribution name",
+            status="pass",
+            message=f"Found expected package directory: src/mxm/{import_name}.",
+            path=expected_package_dir,
+        )
+
+    return CheckResult(
+        code=code,
+        name="src/mxm package matches Poetry distribution name",
+        status="fail",
+        message=f"Expected package directory does not exist: src/mxm/{import_name}.",
+        path=expected_package_dir,
+    )
+
+
 PYPROJECT_CHECKS: tuple[Check, ...] = (
     Check(
         code="PY001",
@@ -418,7 +466,7 @@ PYPROJECT_CHECKS: tuple[Check, ...] = (
     ),
     Check(
         code="PY004",
-        name="Poetry package uses src/mxm layout",
+        name="Poetry package includes mxm namespace from src",
         run=lambda root: check_poetry_package_uses_src_mxm_layout(root, "PY004"),
     ),
     Check(
@@ -445,6 +493,13 @@ PYPROJECT_CHECKS: tuple[Check, ...] = (
         code="PY009",
         name="Poetry include contains package py.typed",
         run=lambda root: check_poetry_include_contains_package_py_typed(root, "PY009"),
+    ),
+    Check(
+        code="PY010",
+        name="src/mxm package matches Poetry distribution name",
+        run=lambda root: check_mxm_package_matches_poetry_distribution_name(
+            root, "PY010"
+        ),
     ),
     Check(
         code="PY031",

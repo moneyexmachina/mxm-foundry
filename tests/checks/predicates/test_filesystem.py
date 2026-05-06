@@ -7,6 +7,7 @@ from mxm.foundry.checks.predicates.filesystem import (
     check_required_directory,
     check_required_file,
     check_single_mxm_package,
+    check_src_mxm_is_namespace_package,
 )
 
 
@@ -146,3 +147,41 @@ def test_check_package_py_typed_fails_when_marker_missing(tmp_path: Path) -> Non
     assert result.status == "fail"
     assert result.code == "FS009"
     assert result.path == package_path / "py.typed"
+
+
+def test_check_src_mxm_is_namespace_package_passes_without_init(
+    tmp_path: Path,
+) -> None:
+    mxm_root = tmp_path / "src" / "mxm"
+    mxm_root.mkdir(parents=True)
+
+    result = check_src_mxm_is_namespace_package(tmp_path, "FS011")
+
+    assert result.status == "pass"
+    assert result.code == "FS011"
+    assert result.path == mxm_root
+
+
+def test_check_src_mxm_is_namespace_package_fails_when_src_mxm_missing(
+    tmp_path: Path,
+) -> None:
+    result = check_src_mxm_is_namespace_package(tmp_path, "FS011")
+
+    assert result.status == "fail"
+    assert result.code == "FS011"
+    assert result.path == tmp_path / "src" / "mxm"
+
+
+def test_check_src_mxm_is_namespace_package_fails_when_init_exists(
+    tmp_path: Path,
+) -> None:
+    mxm_root = tmp_path / "src" / "mxm"
+    mxm_root.mkdir(parents=True)
+    init_path = mxm_root / "__init__.py"
+    init_path.write_text("")
+
+    result = check_src_mxm_is_namespace_package(tmp_path, "FS011")
+
+    assert result.status == "fail"
+    assert result.code == "FS011"
+    assert result.path == init_path
